@@ -1,7 +1,9 @@
 package com.spring.order.dao;
 
 import java.io.Serializable;
+
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +98,62 @@ public abstract class GenericHibernateDaoImpl<T, PK extends Serializable> implem
 	}
 
 	
+	@Override
+	public List<Object> convertToObjectList(List<Object[]> objArrayList, Object object, List<String> excludedFieldNames, List<String> includedFieldNames)
+			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+
+		List<Object> ObjectList = new ArrayList<>();
+
+		for (Object[] obj : objArrayList) {
+			Class<?> cls = object.getClass();
+			object = cls.newInstance();
+			Field[] fields = cls.getDeclaredFields();
+
+			int i = 0;
+			for (Field field : fields)
+				
+				if (includedFieldNames != null) {
+					if (includedFieldNames.contains(field.getName())) {
+						field.setAccessible(true);
+						
+						if(obj[i] != null && field.getType().equals(Boolean.class) &&  !field.getType().equals(obj[i].getClass()))
+						{
+						
+							if(obj[i].equals((byte) 1))
+											field.set(object, true);
+							else
+								field.set(object, false);
+						}
+							else 
+							field.set(object, obj[i]);
+							
+						i++;
+					}
+				}
+				else {
+					if ("serialVersionUID".equalsIgnoreCase(field.getName()) || excludedFieldNames != null && excludedFieldNames.contains(field.getName()))
+						continue;
+					field.setAccessible(true);
+					
+					if(obj[i] != null && field.getType().equals(Boolean.class) &&  !field.getType().equals(obj[i].getClass()))
+					{
+					
+						if(obj[i].equals((byte) 1))
+										field.set(object, true);
+						else
+							field.set(object, false);
+					}
+						else 
+						field.set(object, obj[i]);
+						
+					i++;
+				}
+
+			ObjectList.add(object);
+		}
+
+		return ObjectList;
+	}
 
     
 
