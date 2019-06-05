@@ -136,9 +136,12 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				responseMap = orderItemsService.createBatch(orderItemsVos);
 				if(responseMap != null && !responseMap.isEmpty() && responseMap.get("status").equals("success")) {
 					
+					if(responseMap.containsKey("ids"))
+						responseMap.remove("ids");
 					logger.info("Order placed successfully");
 					responseMap.put("status", "success");
 					responseMap.put("message", "Order placed successfully");
+					responseMap.put("id", orderId);
 					return responseMap;
 				}
 			}
