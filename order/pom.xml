@@ -213,9 +213,10 @@
 	      <version>3.8.1</version>
 	      <scope>test</scope>
 	    </dependency>
-	  </dependencies>
+	    
+	 </dependencies>
 	  
-  <build>
+  	<build>
 		<finalName>order-management</finalName>
 		<plugins>
 			<plugin>
