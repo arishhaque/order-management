@@ -89,7 +89,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
 				return responseMap;
 			}
 			orderItems.setOrderStatus(orderItemsVo.getOrderStatus() != null && !orderItemsVo.getOrderStatus().isEmpty() ?
-					orderItemsVo.getOrderStatus():"placed");
+					orderItemsVo.getOrderStatus():"placed successfully");
 			orderItems.setQuantity((orderItemsVo.getQuantity() != null  ? orderItemsVo.getQuantity():new BigInteger("1")));
 			orderItems.setActive(orderItemsVo.getActive() != null ? orderItemsVo.getActive():true);
 			orderItems.setDate(orderItemsVo.getDate() != null ? LocalDateTime.ofInstant(Instant.ofEpochMilli(orderItemsVo.getDate()),TimeZone.getDefault().toZoneId()) : LocalDateTime.now());
@@ -168,7 +168,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
 						return responseMap;
 					}
 					orderItems.setOrderStatus(orderItemsVo.getOrderStatus() != null && !orderItemsVo.getOrderStatus().isEmpty() ?
-							orderItemsVo.getOrderStatus():"Order is in process");
+							orderItemsVo.getOrderStatus():"placed successfully");
 					orderItems.setQuantity((orderItemsVo.getQuantity() != null  ? orderItemsVo.getQuantity():new BigInteger("1")));
 					orderItems.setActive(orderItemsVo.getActive() != null ? orderItemsVo.getActive():true);
 					orderItems.setDate(orderItemsVo.getDate() != null ? LocalDateTime.ofInstant(Instant.ofEpochMilli(orderItemsVo.getDate()),TimeZone.getDefault().toZoneId()) : LocalDateTime.now());

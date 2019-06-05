@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.order.service.OrderManagementService;
+import com.spring.order.vo.PlaceOrderVo;
 
 @RestController
 @RequestMapping(value="/rest/api/order-management")
@@ -21,25 +22,25 @@ public class OrderManagementController {
 	private OrderManagementService orderManagementService;
 	
 	@RequestMapping(value="/place-order", method=RequestMethod.POST)
-	public @ResponseBody Map<String,Object> placeOrder(@RequestBody Map<String,Object> requestMap) {
+	public @ResponseBody Map<String,Object> placeOrder(@RequestBody PlaceOrderVo placeOrderVo) {
 		
 		Map<String,Object> responseMap = new HashMap<>();
-		if(requestMap != null && !requestMap.isEmpty()) {
-			responseMap = orderManagementService.placeOrder(requestMap);
+		if(placeOrderVo != null) {
+			responseMap = orderManagementService.placeOrder(placeOrderVo);
 			if(responseMap != null && responseMap.get("status").equals("success"))
 				return responseMap;
 		}
 		
-		responseMap.put("status","error");
-		responseMap.put("message","Order is not valid");
 		return responseMap;
 	}
 	
 	@RequestMapping(value="/get-order-details", method=RequestMethod.POST)
-	public @ResponseBody Map<String,Object> getOrderDetails(@RequestBody BigInteger orderId) {
+	public @ResponseBody Map<String,Object> getOrderDetails(@RequestBody Map<String,Object> requestMap) {
 		
 		Map<String,Object> responseMap = new HashMap<>();
-		if(orderId != null && orderId.compareTo(new BigInteger("0")) > 0) {
+		if(requestMap != null && !requestMap.isEmpty() && requestMap.containsKey("orderId")) {
+			Integer orderIdInt = (Integer) requestMap.get("orderId");
+			BigInteger orderId = BigInteger.valueOf(orderIdInt.intValue());
 			responseMap = orderManagementService.getOrderDetailsById(orderId);
 			if(responseMap != null && responseMap.get("status").equals("success"))
 				return responseMap;
