@@ -13,4 +13,6 @@ public interface ItemDao extends GenericHibernateDao<Item, BigInteger> {
 	
 	public Item getItemsById(Map<String, Object> paramsKayAndValues);
 	
+	public List<Item> getItemsByIds(Map<String, Object> paramsKayAndValues);
+	
 }

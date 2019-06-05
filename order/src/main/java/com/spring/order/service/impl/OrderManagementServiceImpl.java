@@ -80,28 +80,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				return responseMap;
 			}
 			BigInteger price = placeOrderVo.getPrice();
-			
-			List<BigInteger> itemIds = placeOrderVo.getItemIds();
-			List<Item> items = new ArrayList<>();
-			if(itemIds != null && !itemIds.isEmpty()) {
-				for(BigInteger id:itemIds) {
-					Item item = itemDao.read(id);
-					if(item!=null && item.getId() !=  null && item.getItemCount() != null && item.getItemCount().compareTo(quantity) > -1) {
-						item.setItemCount(item.getItemCount().subtract(quantity));
-						items.add(item);
-					}
-					else {
-						logger.error("Item is out of stock");
-						responseMap.put("status", "error");
-						responseMap.put("message", "Item is out of stock");
-						responseMap.put("itemId", id);
-						return responseMap;
-					}
-				}
-			}
-			
-			itemDao.updateBatch(items);
-			
+
 			Map<String, Object> orderResponseMap = orderService.create(orderVo);
 			if(orderResponseMap == null || orderResponseMap.isEmpty() || 
 					(orderResponseMap.containsKey("status") && orderResponseMap.get("status").equals("error"))){
@@ -121,13 +100,48 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				return responseMap;
 			}
 			
+			List<BigInteger> itemIds = placeOrderVo.getItemIds();
+			
+			Map<String, Object> parameters = new HashMap<>();
+			
+			List<Item> items = null;
+			if(itemIds != null && !itemIds.isEmpty()) {
+				
+				parameters.put("idList", itemIds);
+				items = (List<Item>) itemDao.getItemsByIds(parameters);
+				if(items!=null && !items.isEmpty())
+					itemDao.updateBatch(items);
+				else {
+					logger.error("items not specified");
+					responseMap.put("status", "error");
+					responseMap.put("message", "items not specified, select appropriate items");
+					return responseMap;
+				}
+				/*for(BigInteger id:itemIds) {
+					Item item = itemDao.read(id);
+					if(item!=null && item.getId() !=  null && item.getItemCount() != null && item.getItemCount().compareTo(quantity) > -1) {
+						item.setItemCount(item.getItemCount().subtract(quantity));
+						items.add(item);
+					}
+					else {
+						logger.error("Item is out of stock");
+						responseMap.put("status", "error");
+						responseMap.put("message", "Item is out of stock");
+						responseMap.put("itemId", id);
+						return responseMap;
+					}
+				}*/
+			}
+			
 			if(items != null && !items.isEmpty()) {
 				
-					items.stream().forEach((item) -> {
+				items.stream().forEach((item) -> {
+					
 					OrderItemsVo orderItemsVo = new OrderItemsVo();
 					orderItemsVo.setOrderId(orderId);
 					orderItemsVo.setItemId(item.getId());
 					orderItemsVo.setPrice(price);
+					orderItemsVo.setQuantity(quantity);
 					
 					orderItemsVos.add(orderItemsVo);
 				});
@@ -139,7 +153,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				if(responseMap != null && !responseMap.isEmpty() && responseMap.get("status").equals("success")) {
 					
 					logger.info("Order placed successfylly");
-					responseMap.put("status", "error");
+					responseMap.put("status", "success");
 					responseMap.put("message", "Order placed successfylly");
 					return responseMap;
 				}

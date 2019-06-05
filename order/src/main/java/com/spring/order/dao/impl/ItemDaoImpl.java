@@ -45,4 +45,19 @@ public class ItemDaoImpl extends GenericHibernateDaoImpl<Item, BigInteger> imple
 
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Item> getItemsByIds(Map<String, Object> paramsKayAndValues) {
+		
+		Session session = getSession();
+		TypedQuery<Item> query = session.createQuery("from com.spring.order.model.Item i where i.active=true and i.id in (:idList)");
+		if(paramsKayAndValues != null && !paramsKayAndValues.isEmpty()) {
+			for(String key : paramsKayAndValues.keySet())
+				query.setParameter(key, paramsKayAndValues.get(key));
+			}
+		session.flush();
+		
+		return query.getResultList();
+	}
+
 }
