@@ -180,11 +180,8 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 					e.printStackTrace();
 				}
 				
-				
 				if(orderDetailsVos != null && !orderDetailsVos.isEmpty()) {
-					
-					
-					
+
 					logger.info("Order details fetched succssfully"+orderId);
 					responseMap.put("status", "error");
 					responseMap.put("message", "Order details fetched succssfully:");
@@ -193,7 +190,6 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				}
 			}
 		}
-		
 		
 		logger.error("Order does not exist, invalid order id"+orderId);
 		responseMap.put("status", "error");
