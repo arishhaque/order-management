@@ -101,12 +101,10 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			}
 			
 			List<BigInteger> itemIds = placeOrderVo.getItemIds();
-			
-			Map<String, Object> parameters = new HashMap<>();
-			
 			List<Item> items = null;
 			if(itemIds != null && !itemIds.isEmpty()) {
 				
+				Map<String, Object> parameters = new HashMap<>();
 				parameters.put("idList", itemIds);
 				items = (List<Item>) itemDao.getItemsByIds(parameters);
 				if(items!=null && !items.isEmpty())
@@ -117,20 +115,6 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 					responseMap.put("message", "items not specified, select appropriate items");
 					return responseMap;
 				}
-				/*for(BigInteger id:itemIds) {
-					Item item = itemDao.read(id);
-					if(item!=null && item.getId() !=  null && item.getItemCount() != null && item.getItemCount().compareTo(quantity) > -1) {
-						item.setItemCount(item.getItemCount().subtract(quantity));
-						items.add(item);
-					}
-					else {
-						logger.error("Item is out of stock");
-						responseMap.put("status", "error");
-						responseMap.put("message", "Item is out of stock");
-						responseMap.put("itemId", id);
-						return responseMap;
-					}
-				}*/
 			}
 			
 			if(items != null && !items.isEmpty()) {
