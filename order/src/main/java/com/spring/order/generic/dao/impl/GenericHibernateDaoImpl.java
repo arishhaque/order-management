@@ -1,4 +1,4 @@
-package com.spring.order.dao;
+package com.spring.order.generic.dao.impl;
 
 import java.io.Serializable;
 

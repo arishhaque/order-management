@@ -9,8 +9,8 @@ import javax.persistence.TypedQuery;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import com.spring.order.dao.GenericHibernateDaoImpl;
 import com.spring.order.dao.ItemDao;
+import com.spring.order.generic.dao.impl.GenericHibernateDaoImpl;
 import com.spring.order.model.Item;
 
 @Repository("itemDao")
