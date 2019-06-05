@@ -1,2 +1,5 @@
 .DS_Store
-/order/target
+/order/target/*
+/order/.settings
+/order/.classpath
+/order/.project
