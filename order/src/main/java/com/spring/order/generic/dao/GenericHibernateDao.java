@@ -17,11 +17,7 @@ public interface GenericHibernateDao <T, PK extends Serializable> {
 
 	public void delete(T o);
 
-	List<Object> convertToObjectList(List<Object[]> objArrayList, Object object, List<String> excludedFieldNames,
-			List<String> includedFieldNames)
+	List<Object> convertToObjectList(List<Object[]> objArrayList, Object object, List<String> excludedFields, List<String> includedFields)
 			throws ClassNotFoundException, InstantiationException, IllegalAccessException;
-    
-
-
 
 }

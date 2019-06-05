@@ -99,7 +99,7 @@ public abstract class GenericHibernateDaoImpl<T, PK extends Serializable> implem
 
 	
 	@Override
-	public List<Object> convertToObjectList(List<Object[]> objArrayList, Object object, List<String> excludedFieldNames, List<String> includedFieldNames)
+	public List<Object> convertToObjectList(List<Object[]> objArrayList, Object object, List<String> excludedFields, List<String> includedFields)
 			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
 		List<Object> ObjectList = new ArrayList<>();
@@ -112,8 +112,8 @@ public abstract class GenericHibernateDaoImpl<T, PK extends Serializable> implem
 			int i = 0;
 			for (Field field : fields)
 				
-				if (includedFieldNames != null) {
-					if (includedFieldNames.contains(field.getName())) {
+				if (includedFields != null) {
+					if (includedFields.contains(field.getName())) {
 						field.setAccessible(true);
 						
 						if(obj[i] != null && field.getType().equals(Boolean.class) &&  !field.getType().equals(obj[i].getClass()))
@@ -131,7 +131,7 @@ public abstract class GenericHibernateDaoImpl<T, PK extends Serializable> implem
 					}
 				}
 				else {
-					if ("serialVersionUID".equalsIgnoreCase(field.getName()) || excludedFieldNames != null && excludedFieldNames.contains(field.getName()))
+					if ("serialVersionUID".equalsIgnoreCase(field.getName()) || excludedFields != null && excludedFields.contains(field.getName()))
 						continue;
 					field.setAccessible(true);
 					
