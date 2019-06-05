@@ -119,7 +119,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			
 			if(items != null && !items.isEmpty()) {
 				
-				items.stream().forEach((item) -> {
+				items.forEach((item) -> {
 					
 					OrderItemsVo orderItemsVo = new OrderItemsVo();
 					orderItemsVo.setOrderId(orderId);
@@ -136,9 +136,9 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				responseMap = orderItemsService.createBatch(orderItemsVos);
 				if(responseMap != null && !responseMap.isEmpty() && responseMap.get("status").equals("success")) {
 					
-					logger.info("Order placed successfylly");
+					logger.info("Order placed successfully");
 					responseMap.put("status", "success");
-					responseMap.put("message", "Order placed successfylly");
+					responseMap.put("message", "Order placed successfully");
 					return responseMap;
 				}
 			}
