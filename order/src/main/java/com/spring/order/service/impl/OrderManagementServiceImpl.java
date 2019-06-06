@@ -473,7 +473,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				
 				if(ordersMap.containsKey(orderDetaisVo.getOrderId())) {
 					
-					// add new entry into map
+					// updating existing entry into map
 					SearchOrderVo searchOrderVo = ordersMap.get(orderDetaisVo.getOrderId());
 					SearchItemVo searchItemVo = new SearchItemVo();
 					searchItemVo.setItemId(orderDetaisVo.getItemId());
@@ -485,7 +485,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 										
 				}else{
 					
-					// updating existing entry into map
+					// add new entry into map
 					SearchOrderVo searchOrderVo = new SearchOrderVo();
 					searchOrderVo.setOrderId(orderDetaisVo.getOrderId());
 					searchOrderVo.setEmailId(orderDetaisVo.getEmailId());
