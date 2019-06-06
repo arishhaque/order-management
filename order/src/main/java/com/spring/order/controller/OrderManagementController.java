@@ -35,8 +35,21 @@ public class OrderManagementController {
 				return responseMap;
 		}
 		
+		return responseMap;
+	}
+	
+	@RequestMapping(value="/place-bulk-orders", method=RequestMethod.POST)
+	public @ResponseBody Map<String,Object> placeBulkOrders(@RequestBody List<PlaceOrderVo> placeOrderVos) {
+		
+		Map<String,Object> responseMap = new HashMap<>();
+		if(placeOrderVos != null  && !placeOrderVos.isEmpty()) {
+			responseMap = orderManagementService.placeBulkOrders(placeOrderVos);
+			if(responseMap != null && responseMap.get("status").equals("success"))
+				return responseMap;
+		}
+		
 		responseMap.put("status","error");
-		responseMap.put("message","cannot place Order, try again!");
+		responseMap.put("message","Order could not be placed, pls review your order");
 		return responseMap;
 	}
 	
@@ -90,11 +103,20 @@ public class OrderManagementController {
 		return responseMap;
 	}
 
-	@RequestMapping(value="/list-all-orders", method=RequestMethod.POST)
-	public @ResponseBody Map<String,Object> listAllOrders() {
+	@RequestMapping(value="/list-orders-with-search", method=RequestMethod.POST)
+	public @ResponseBody Map<String,Object> listAllOrders(@RequestBody Map<String,Object> requestMap) {
 		
 		Map<String,Object> responseMap = new HashMap<>();
-		responseMap = orderManagementService.listAllOrderDetails();
+		if(requestMap != null && !requestMap.isEmpty() && requestMap.containsKey("searchKey")
+				&& requestMap.containsKey("pageSize") && requestMap.containsKey("pageNumber")) {
+			
+			String searchKey = (String) requestMap.get("searchKey");
+			Integer pageSize = (Integer) requestMap.get("pageSize");
+			Integer pageNumber = (Integer) requestMap.get("pageNumber");
+			responseMap = orderManagementService.listOrderDetailsWithSearchKey(searchKey, pageSize, pageNumber);
+			return responseMap;
+			
+		}
 		return responseMap;
 	}
 

@@ -40,7 +40,7 @@ CREATE TABLE `item` (
 
 LOCK TABLES `item` WRITE;
 /*!40000 ALTER TABLE `item` DISABLE KEYS */;
-INSERT INTO `item` VALUES (1,'1st item',4,10,1,'2019-06-02 14:30:05',NULL),(5,'1st item',5,10,1,'2019-06-02 14:35:40',NULL),(6,'1st item',1,20,1,'2019-06-02 14:36:45',NULL),(7,'2nd item',1,50,1,'2019-06-02 14:39:55',NULL),(8,'2nd item',1,50,1,'2019-06-02 14:45:36',NULL),(9,'9th item',9,9,1,'2019-06-02 14:45:36',NULL),(10,'10th item',10,10,1,'2019-06-04 10:10:21',NULL);
+INSERT INTO `item` VALUES (1,'item - 1',1,10,1,'2019-06-02 14:30:05',NULL),(2,'item - 2',0,10,1,'2019-06-02 14:35:40',NULL),(3,'item - 3',1,20,1,'2019-06-02 14:36:45',NULL),(4,'item - 4',1,50,1,'2019-06-02 14:39:55',NULL),(5,'item - 5',1,50,1,'2019-06-02 14:45:36',NULL),(6,'item - 6',7,9,1,'2019-06-02 14:45:36',NULL),(7,'item - 7',8,10,1,'2019-06-04 10:10:21',NULL);
 /*!40000 ALTER TABLE `item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,7 +65,7 @@ CREATE TABLE `order_items` (
   KEY `fk_item_id_idx` (`item_id`),
   CONSTRAINT `fk_item_id` FOREIGN KEY (`item_id`) REFERENCES `item` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_order_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +74,6 @@ CREATE TABLE `order_items` (
 
 LOCK TABLES `order_items` WRITE;
 /*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
-INSERT INTO `order_items` VALUES (4,1,1,4,10,'will be dispatched soon',1,'2019-06-04 12:47:31'),(5,1,1,5,10,'placed',1,'2019-06-04 12:49:03'),(6,1,1,4,10,'Order is in process',1,'2019-06-04 12:49:14'),(7,1,1,6,15,'placed',1,'2019-06-04 14:34:47'),(8,1,1,12,50,'dipatched',1,'2019-06-04 14:36:19'),(11,1,1,12,50,'dipatched',1,'2019-06-04 15:07:39'),(12,1,1,12,50,'progress',1,'2019-06-04 15:07:39'),(13,1,1,12,50,'dipatched',1,'2019-06-04 15:24:23'),(14,1,1,12,50,'progress',1,'2019-06-04 15:24:23'),(15,1,1,150,10,'will be dispatched soon',1,'2019-06-04 15:44:02'),(16,1,1,160,20,'will be dispatched soon..',1,'2019-06-04 15:44:02');
 /*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -92,7 +91,7 @@ CREATE TABLE `orders` (
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,7 +100,6 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (1,'abc','1st order',1,'2019-06-04 12:00:17'),(3,'abc','3rd order-1',1,'2019-06-04 14:58:20'),(4,'abc','2nd order-1',1,'2019-06-04 14:58:20'),(5,'abc','3rd order',1,'2019-06-04 14:57:55'),(6,'abc','2nd order',1,'2019-06-04 15:07:49'),(7,'abc','3rd order',1,'2019-06-04 15:07:49');
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -114,4 +112,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-05 16:26:11
+-- Dump completed on 2019-06-06 21:00:51

@@ -18,5 +18,9 @@ public interface OrderItemsDao extends GenericHibernateDao<OrderItems, BigIntege
 	public List<OrderItems> listOrderItemsByOrderIdandItemIds(Map<String, Object> paramsKayAndValues);
 	
 	public List<Object[]> getOrderDetailsById( Map<String, Object> paramsKayAndValues);
+	
+	public List<Object[]> getOrderDetailsBySearchKey( Map<String, Object> paramsKayAndValues);
+	
+	public List<Object[]> getOrderDetailsByEmptySearchKey();
 
 }

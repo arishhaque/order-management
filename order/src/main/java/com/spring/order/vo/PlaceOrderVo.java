@@ -13,23 +13,25 @@ public class PlaceOrderVo implements Serializable {
 	
 	private String emailId;
 	private String description;
-	private List<BigInteger> itemIds;
-	private BigInteger quantity;
+	private List<PlaceOrderItemVo> placeOrderItemVos;
 	private BigInteger price;
 	
 	public PlaceOrderVo() {
 		super();
 	}
 
-	public PlaceOrderVo(String emailId, String description, List<BigInteger> itemIds, BigInteger quantity,
+	
+
+	public PlaceOrderVo(String emailId, String description, List<PlaceOrderItemVo> placeOrderItemVos,
 			BigInteger price) {
 		super();
 		this.emailId = emailId;
 		this.description = description;
-		this.itemIds = itemIds;
-		this.quantity = quantity;
+		this.placeOrderItemVos = placeOrderItemVos;
 		this.price = price;
 	}
+
+
 
 	public String getEmailId() {
 		return emailId;
@@ -47,21 +49,17 @@ public class PlaceOrderVo implements Serializable {
 		this.description = description;
 	}
 
-	public List<BigInteger> getItemIds() {
-		return itemIds;
+	public List<PlaceOrderItemVo> getPlaceOrderItemVos() {
+		return placeOrderItemVos;
 	}
 
-	public void setItemIds(List<BigInteger> itemIds) {
-		this.itemIds = itemIds;
+
+
+	public void setPlaceOrderItemVos(List<PlaceOrderItemVo> placeOrderItemVos) {
+		this.placeOrderItemVos = placeOrderItemVos;
 	}
 
-	public BigInteger getQuantity() {
-		return quantity;
-	}
 
-	public void setQuantity(BigInteger quantity) {
-		this.quantity = quantity;
-	}
 
 	public BigInteger getPrice() {
 		return price;

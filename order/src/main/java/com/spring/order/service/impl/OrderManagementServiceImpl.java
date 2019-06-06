@@ -1,6 +1,7 @@
 package com.spring.order.service.impl;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,22 +24,18 @@ import com.spring.order.model.Order;
 import com.spring.order.model.OrderItems;
 import com.spring.order.service.OrderItemsService;
 import com.spring.order.service.OrderManagementService;
-import com.spring.order.service.OrderService;
 import com.spring.order.vo.ItemStatusVo;
 import com.spring.order.vo.OrderDetailsVo;
 import com.spring.order.vo.OrderItemStatusVo;
 import com.spring.order.vo.OrderItemsVo;
 import com.spring.order.vo.OrderStatusVo;
-import com.spring.order.vo.OrderVo;
+import com.spring.order.vo.PlaceOrderItemVo;
 import com.spring.order.vo.PlaceOrderVo;
 
 @Service
 public class OrderManagementServiceImpl implements OrderManagementService {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	@Autowired
-	private OrderService orderService;
 	
 	@Autowired
 	private OrderItemsService orderItemsService;
@@ -56,27 +53,52 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 	public Map<String, Object> placeOrder(PlaceOrderVo placeOrderVo) {
 		
 		Map<String, Object> responseMap = new HashMap<>();
+		List<OrderItemsVo> orderItemsVos = new ArrayList<>();
 		if(placeOrderVo != null) {
 			
-			OrderVo orderVo = new OrderVo();
+			Order order = new Order();
 			if(placeOrderVo.getEmailId() == null || placeOrderVo.getEmailId().trim().isEmpty()) {
 				logger.error("Invalid email id");
 				responseMap.put("status", "error");
 				responseMap.put("message", "Invalid email id");
 				return responseMap;
 			}
+			order.setEmailId(placeOrderVo.getEmailId().trim());
+			order.setDescription((placeOrderVo.getDescription() != null ? placeOrderVo.getDescription():null));
+			order.setActive(true);
+			order.setDate(LocalDateTime.now());
 			
-			orderVo.setEmailId(placeOrderVo.getEmailId().trim());
-			if(placeOrderVo.getItemIds() == null || placeOrderVo.getItemIds().isEmpty()) {
+			if(placeOrderVo.getPlaceOrderItemVos() == null && placeOrderVo.getPlaceOrderItemVos().isEmpty()) {
+				
 				logger.error("No items found");
 				responseMap.put("status", "error");
 				responseMap.put("message", "No items found, check items list");
 				return responseMap;
 			}
 			
-			String Description = (placeOrderVo.getDescription() != null ? placeOrderVo.getDescription():null);
-			orderVo.setDescription(Description);
-			BigInteger quantity = (placeOrderVo.getQuantity() != null ? placeOrderVo.getQuantity():new BigInteger("1"));
+			List<PlaceOrderItemVo> placeOrderItemVos = placeOrderVo.getPlaceOrderItemVos();
+			
+			BigInteger quantity = new BigInteger("1");
+			BigInteger itemId = null;
+			List<Item> items = new ArrayList<>();
+			Map<BigInteger, BigInteger> itemQuantityMap = new HashMap<>();
+			for(PlaceOrderItemVo placeOrderItemVo :placeOrderItemVos) {
+				
+				quantity = (placeOrderItemVo.getQuantity() != null ? placeOrderItemVo.getQuantity():new BigInteger("1"));
+				itemId = (placeOrderItemVo.getItemId() != null ? placeOrderItemVo.getItemId():new BigInteger("0"));
+				itemQuantityMap.put(itemId, quantity);
+				Item item =  itemDao.read(itemId);
+				if(item!=null && item.getActive() && item.getItemCount().compareTo(quantity) > -1) {
+					item.setItemCount(item.getItemCount().subtract(quantity));
+					items.add(item);
+				} else {
+					logger.error("item is out of stock with id: "+itemId);
+					responseMap.put("status", "error");
+					responseMap.put("message", "item is out of stock with id: "+itemId);
+					return responseMap;
+				}
+			}
+			
 			if(placeOrderVo.getPrice() == null) {
 				logger.error("Price not specified");
 				responseMap.put("status", "error");
@@ -84,19 +106,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				return responseMap;
 			}
 			BigInteger price = placeOrderVo.getPrice();
-
-			Map<String, Object> orderResponseMap = orderService.create(orderVo);
-			if(orderResponseMap == null || orderResponseMap.isEmpty() || 
-					(orderResponseMap.containsKey("status") && orderResponseMap.get("status").equals("error"))){
-				
-				logger.error("Order could not be placed");
-				responseMap.put("status", "error");
-				responseMap.put("message", "Order could not be placed");
-				return responseMap;
-			}
-			
-			List<OrderItemsVo> orderItemsVos = new ArrayList<>();
-			BigInteger orderId = (BigInteger) orderResponseMap.get("id");
+			BigInteger orderId = orderDao.create(order);
 			if(orderId == null) {
 				logger.error("Order could not be placed");
 				responseMap.put("status", "error");
@@ -104,35 +114,19 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				return responseMap;
 			}
 			
-			List<BigInteger> itemIds = placeOrderVo.getItemIds();
-			List<Item> items = null;
-			if(itemIds != null && !itemIds.isEmpty()) {
-				
-				Map<String, Object> parameters = new HashMap<>();
-				parameters.put("idList", itemIds);
-				items = (List<Item>) itemDao.getItemsByIds(parameters);
-				if(items!=null && !items.isEmpty())
-					itemDao.updateBatch(items);
-				else {
-					logger.error("items not specified");
-					responseMap.put("status", "error");
-					responseMap.put("message", "items not specified, select appropriate items");
-					return responseMap;
-				}
-			}
-			
 			if(items != null && !items.isEmpty()) {
-				
-				items.forEach((item) -> {
+
+				itemDao.updateBatch(items);
+				for(Item item : items) {
 					
 					OrderItemsVo orderItemsVo = new OrderItemsVo();
 					orderItemsVo.setOrderId(orderId);
 					orderItemsVo.setItemId(item.getId());
+					orderItemsVo.setQuantity(itemQuantityMap.get(item.getId()));
 					orderItemsVo.setPrice(price);
-					orderItemsVo.setQuantity(quantity);
 					
 					orderItemsVos.add(orderItemsVo);
-				});
+				};
 			}
 			
 			if(orderItemsVos != null && !orderItemsVos.isEmpty()) {
@@ -153,9 +147,122 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 		
 		logger.error("Order could not be placed");
 		responseMap.put("status", "error");
-		responseMap.put("message", "Order could not be placed, try again!");
+		responseMap.put("message", "Order could not be placed, pls review your order");
 		return responseMap;
 
+	}
+	
+	@Override
+	public Map<String, Object> placeBulkOrders(List<PlaceOrderVo> placeOrderVos) {
+		
+		Map<String, Object> responseMap = new HashMap<>();
+	
+		List<OrderItemsVo> orderItemsVos = new ArrayList<>();
+		List<BigInteger> orderIds = new ArrayList<>();
+		for(PlaceOrderVo placeOrderVo : placeOrderVos) {
+			
+			if(placeOrderVo != null) {
+				
+				Order order = new Order();
+				if(placeOrderVo.getEmailId() == null || placeOrderVo.getEmailId().trim().isEmpty()) {
+					logger.error("Invalid email id");
+					responseMap.put("status", "error");
+					responseMap.put("message", "Invalid email id");
+					return responseMap;
+				}
+				
+				order.setEmailId(placeOrderVo.getEmailId().trim());
+			
+				order.setDescription((placeOrderVo.getDescription() != null ? placeOrderVo.getDescription():null));
+				order.setActive(true);
+				order.setDate(LocalDateTime.now());
+				
+				if(placeOrderVo.getPlaceOrderItemVos() == null && placeOrderVo.getPlaceOrderItemVos().isEmpty()) {
+					
+					logger.error("No items found");
+					responseMap.put("status", "error");
+					responseMap.put("message", "No items found, check items list");
+					return responseMap;
+				}
+				
+				List<PlaceOrderItemVo> placeOrderItemVos = placeOrderVo.getPlaceOrderItemVos();
+				
+				BigInteger quantity = new BigInteger("1");
+				BigInteger itemId = null;
+				List<Item> items = new ArrayList<>();
+				Map<BigInteger, BigInteger> itemQuantityMap = new HashMap<>();
+				for(PlaceOrderItemVo placeOrderItemVo :placeOrderItemVos) {
+					
+					quantity = (placeOrderItemVo.getQuantity() != null ? placeOrderItemVo.getQuantity():new BigInteger("1"));
+					itemId = (placeOrderItemVo.getItemId() != null ? placeOrderItemVo.getItemId():new BigInteger("0"));
+					itemQuantityMap.put(itemId, quantity);
+					Item item =  itemDao.read(itemId);
+					if(item!=null && item.getActive() && item.getItemCount().compareTo(quantity) > -1) {
+						item.setItemCount(item.getItemCount().subtract(quantity));
+						items.add(item);
+					} else {
+						logger.error("item is out of stock with id: "+itemId);
+						responseMap.put("status", "error");
+						responseMap.put("message", "item is out of stock with id: "+itemId);
+						return responseMap;
+					}
+				}
+				
+				if(placeOrderVo.getPrice() == null) {
+					logger.error("Price not specified");
+					responseMap.put("status", "error");
+					responseMap.put("message", "Price not specified");
+					return responseMap;
+				}
+				BigInteger price = placeOrderVo.getPrice();
+				
+				BigInteger orderId = orderDao.create(order);
+				if(orderId == null) {
+					logger.error("Order could not be placed");
+					responseMap.put("status", "error");
+					responseMap.put("message", "Order could not be placed");
+					return responseMap;
+				}
+				
+				orderIds.add(orderId);
+			
+				if(items != null && !items.isEmpty()) {
+					
+					itemDao.updateBatch(items);
+					items.forEach((item) -> {
+						
+						OrderItemsVo orderItemsVo = new OrderItemsVo();
+						orderItemsVo.setOrderId(orderId);
+						orderItemsVo.setItemId(item.getId());
+						orderItemsVo.setPrice(price);
+						orderItemsVo.setQuantity(itemQuantityMap.get(item.getId()));
+						
+						orderItemsVos.add(orderItemsVo);
+					});
+				}
+			}
+			
+		}
+		if(orderItemsVos != null && !orderItemsVos.isEmpty()) {
+			
+			responseMap = orderItemsService.createBatch(orderItemsVos);
+			if(responseMap != null && !responseMap.isEmpty() && responseMap.get("status").equals("success")) {
+				
+				logger.info("Order placed successfully");
+				responseMap.put("status", "success");
+				responseMap.put("message", "Order placed successfully");
+				responseMap.put("ids", orderIds);
+				return responseMap;
+			}
+		}
+
+		
+		logger.error("Order could not be placed");
+		responseMap.put("status", "error");
+		responseMap.put("message", "Order could not be placed, pls review your order");
+		return responseMap;
+	
+	
 	}
 
 	@Override
@@ -168,14 +275,14 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			Order order = orderDao.read(orderId);
 			if(order != null && order.getActive()) {
 				
-				Map<String, Object> parameters = new HashMap<>();
-				parameters.put("orderId", orderId);
-				List<Object[]> queryResult = orderItemsDao.getOrderDetailsById(parameters);
-				
 				ObjectMapper mapper = new ObjectMapper();
 				GsonBuilder builder = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 				Gson gson = builder.create();
 				
+				Map<String, Object> parameters = new HashMap<>();
+				parameters.put("orderId", orderId);
+				
+				List<Object[]> queryResult = orderItemsDao.getOrderDetailsById(parameters);
 				try {
 					List<Object> objList = orderItemsDao.convertToObjectList(queryResult,new OrderDetailsVo(), null, null);
 					orderDetailsVos = mapper.readValue(gson.toJson(objList),new TypeReference<List<OrderDetailsVo>>() {});
@@ -185,9 +292,9 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				
 				if(orderDetailsVos != null && !orderDetailsVos.isEmpty()) {
 
-					logger.info("Order details fetched succssfully"+orderId);
+					logger.info("Order details fetched succssfully: "+orderId);
 					responseMap.put("status", "success");
-					responseMap.put("message", "Order details fetched succssfully:");
+					responseMap.put("message", "Order details fetched succssfully: "+orderId);
 					responseMap.put("OrderDetails", orderDetailsVos);
 					return responseMap;
 				}
@@ -298,12 +405,86 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 	}
 
 	@Override
-	public Map<String, Object> listAllOrderDetails() {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String,Object> listOrderDetailsWithSearchKey(String searchKey, Integer pageSize, Integer pageNumber){
+		
+		Map<String, Object> responseMap = new HashMap<>();
+		List<OrderDetailsVo> orderDetailsVos = new ArrayList<>();
+		List<OrderDetailsVo> orderDetailsPaginatedVos = new ArrayList<>();
+		Integer totalCount = null;
+		if(searchKey == null || pageSize == null || pageNumber == null) {
+			
+			logger.error("No orders matched");
+			responseMap.put("status", "error");
+			responseMap.put("message", "Enter valid search key, page number or page size");
+			return responseMap;
+		}
+		
+		ObjectMapper mapper = new ObjectMapper();
+		GsonBuilder builder = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+		Gson gson = builder.create();
+		
+		List<Object[]> queryResult = null;
+		if(!searchKey.trim().isEmpty()) {
+			
+			searchKey = "%" + searchKey.trim() + "%";
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put("searchKey", searchKey.trim());
+			
+			queryResult = orderItemsDao.getOrderDetailsBySearchKey(parameters);
+		}else {
+		
+			queryResult = orderItemsDao.getOrderDetailsByEmptySearchKey();
+		}
+		
+		try {
+			List<Object> objList = orderItemsDao.convertToObjectList(queryResult,new OrderDetailsVo(), null, null);
+			orderDetailsVos = mapper.readValue(gson.toJson(objList),new TypeReference<List<OrderDetailsVo>>() {});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		List<BigInteger> orderIdCount = new ArrayList<>();
+		//List<OrderDetailsVo> orderDetailsCountVos = new ArrayList<>();
+		if (orderDetailsVos != null && orderDetailsVos.size()>0) {
+
+			orderDetailsVos.forEach((vo -> {
+				if(!orderIdCount.contains(vo.getOrderId()))
+						orderIdCount.add(vo.getOrderId());
+					
+			}));
+			Integer indexstart = (pageNumber - 1) * pageSize;
+
+			totalCount = orderIdCount.size();
+			Integer pages = totalCount / pageSize;
+
+			if (pages + 1 >= pageNumber) {
+				if (pages + 1 == pageNumber)
+					pageSize = totalCount % pageSize;
+
+				for (int i = indexstart; i < indexstart + pageSize; i++) {
+
+					OrderDetailsVo orderDetailsVo = orderDetailsVos.get(i);
+					orderDetailsPaginatedVos.add(orderDetailsVo);
+				}
+			}
+		}
+		
+		if(orderDetailsPaginatedVos != null && !orderDetailsPaginatedVos.isEmpty()) {
+			
+			logger.info("Order details fetched succssfully");
+			responseMap.put("status", "success");
+			responseMap.put("message", "Order details fetched succssfully");
+			responseMap.put("totalCount", totalCount);
+			responseMap.put("OrderDetails", orderDetailsPaginatedVos);
+			return responseMap;
+		}
+		
+		
+		logger.error("No orders matched");
+		responseMap.put("status", "error");
+		responseMap.put("message", "No orders matched");
+		return responseMap;
 	}
-	
-	
-	
+
 
 }

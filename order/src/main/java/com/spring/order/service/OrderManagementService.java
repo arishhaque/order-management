@@ -11,9 +11,11 @@ import com.spring.order.vo.PlaceOrderVo;
 public interface OrderManagementService {
 	
 	Map<String,Object> placeOrder(PlaceOrderVo placeOrderVo);
+	Map<String,Object> placeBulkOrders(List<PlaceOrderVo> placeOrderVos);
 	Map<String,Object> getOrderDetailsById(BigInteger orderId);
 	Map<String,Object> updateOrderStatus(BigInteger orderId,  List<ItemStatusVo> orderItemStatusVos);
 	Map<String,Object> checkOrderStatus(OrderItemStatusVo orderItemStatusVo);
-	Map<String,Object> listAllOrderDetails();
+	Map<String,Object> listOrderDetailsWithSearchKey(String searchKey, Integer pageSize, Integer pageNumber);
+	
 
 }
