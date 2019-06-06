@@ -58,6 +58,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 		List<OrderItemsVo> orderItemsVos = new ArrayList<>();
 		if(placeOrderVo != null) {
 			
+			logger.info("Fetching order details");
 			Order order = new Order();
 			if(placeOrderVo.getEmailId() == null || placeOrderVo.getEmailId().trim().isEmpty()) {
 				logger.error("Invalid email id");
@@ -69,6 +70,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			order.setDescription((placeOrderVo.getDescription() != null ? placeOrderVo.getDescription():null));
 			order.setActive(true);
 			order.setDate(LocalDateTime.now());
+			logger.info("order email id fetched successfully");
 			
 			if(placeOrderVo.getPlaceOrderItemVos() == null && placeOrderVo.getPlaceOrderItemVos().isEmpty()) {
 				
@@ -101,6 +103,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				}
 			}
 			
+			logger.info("order items fetched successfully");
 			if(placeOrderVo.getPrice() == null) {
 				logger.error("Price not specified");
 				responseMap.put("status", "error");
@@ -108,6 +111,8 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				return responseMap;
 			}
 			BigInteger price = placeOrderVo.getPrice();
+			logger.info("order price fetched successfully");
+			
 			BigInteger orderId = orderDao.create(order);
 			if(orderId == null) {
 				logger.error("Order could not be placed");
@@ -119,6 +124,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			if(items != null && !items.isEmpty()) {
 
 				itemDao.updateBatch(items);
+				logger.info("item quantity updated");
 				for(Item item : items) {
 					
 					OrderItemsVo orderItemsVo = new OrderItemsVo();
@@ -133,6 +139,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			
 			if(orderItemsVos != null && !orderItemsVos.isEmpty()) {
 				
+				logger.info("order is ready to be placed");
 				responseMap = orderItemsService.createBatch(orderItemsVos);
 				if(responseMap != null && !responseMap.isEmpty() && responseMap.get("status").equals("success")) {
 					
@@ -165,6 +172,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			
 			if(placeOrderVo != null) {
 				
+				logger.info("Fetching order details");
 				Order order = new Order();
 				if(placeOrderVo.getEmailId() == null || placeOrderVo.getEmailId().trim().isEmpty()) {
 					logger.error("Invalid email id");
@@ -174,10 +182,10 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				}
 				
 				order.setEmailId(placeOrderVo.getEmailId().trim());
-			
 				order.setDescription((placeOrderVo.getDescription() != null ? placeOrderVo.getDescription():null));
 				order.setActive(true);
 				order.setDate(LocalDateTime.now());
+				logger.info("order email id fetched successfully");
 				
 				if(placeOrderVo.getPlaceOrderItemVos() == null && placeOrderVo.getPlaceOrderItemVos().isEmpty()) {
 					
@@ -209,7 +217,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 						return responseMap;
 					}
 				}
-				
+				logger.info("order items fetched successfully");
 				if(placeOrderVo.getPrice() == null) {
 					logger.error("Price not specified");
 					responseMap.put("status", "error");
@@ -217,7 +225,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 					return responseMap;
 				}
 				BigInteger price = placeOrderVo.getPrice();
-				
+				logger.info("order price fetched successfully");
 				BigInteger orderId = orderDao.create(order);
 				if(orderId == null) {
 					logger.error("Order could not be placed");
@@ -231,6 +239,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				if(items != null && !items.isEmpty()) {
 					
 					itemDao.updateBatch(items);
+					logger.info("item quantity updated");
 					items.forEach((item) -> {
 						
 						OrderItemsVo orderItemsVo = new OrderItemsVo();
@@ -247,6 +256,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 		}
 		if(orderItemsVos != null && !orderItemsVos.isEmpty()) {
 			
+			logger.info("order is ready to be placed");
 			responseMap = orderItemsService.createBatch(orderItemsVos);
 			if(responseMap != null && !responseMap.isEmpty() && responseMap.get("status").equals("success")) {
 				
@@ -275,8 +285,10 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 		if(orderId != null) {
 			
 			Order order = orderDao.read(orderId);
+			logger.info("fetching order details");
 			if(order != null && order.getActive()) {
 				
+				logger.info("fetching order details from database");
 				ObjectMapper mapper = new ObjectMapper();
 				GsonBuilder builder = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 				Gson gson = builder.create();
@@ -291,7 +303,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
+				logger.info("order details fetched");
 				if(orderDetailsVos != null && !orderDetailsVos.isEmpty()) {
 
 					logger.info("Order details fetched succssfully: "+orderId);
@@ -316,11 +328,12 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 		List<OrderItems> orderItemsList = new ArrayList<>();
 		if(orderId != null && orderItemStatusVos != null && !orderItemStatusVos.isEmpty()) {
 			
-			for(ItemStatusVo orderItemStatusVo : orderItemStatusVos)
+			for(ItemStatusVo orderItemStatusVo : orderItemStatusVos) {
 				
 				if(orderItemStatusVo != null && orderItemStatusVo.getItemId() != null 
 						&& orderItemStatusVo.getOrderStatus() != null && !orderItemStatusVo.getOrderStatus().trim().isEmpty()) {
 					
+					logger.info("fetching order details from database");
 					Map<String, Object> parameters = new HashMap<>();
 					parameters.put("orderId", orderId);
 					parameters.put("itemId", orderItemStatusVo.getItemId());
@@ -337,7 +350,8 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 	
 					}
 				}
-			
+			}
+			logger.info("order details fetched");
 			if(orderItemsList != null && !orderItemsList.isEmpty()) {
 				orderItemsDao.updateBatch(orderItemsList);
 				logger.info("Order status updated successfully"+orderId);
@@ -370,6 +384,8 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			itemIds = orderItemStatusVo.getItemIds();
 			
 			orderStatusVo.setOrderId(orderId);
+			
+			logger.info("fetching order details from database");
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put("orderId", orderId);
 			parameters.put("itemIds", itemIds);
@@ -386,7 +402,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				});
 			}
 		}
-		
+		logger.info("fetched order details from database");
 		if(itemStatusVos != null && !itemStatusVos.isEmpty()) {
 			
 			orderStatusVo.setItemStatusVos(itemStatusVos);
@@ -429,16 +445,18 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 		List<Object[]> queryResult = null;
 		if(!searchKey.trim().isEmpty()) {
 			
+			logger.info("fetching search key");
 			searchKey = "%" + searchKey.trim() + "%";
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put("searchKey", searchKey.trim());
+			logger.info("search key fetched successfully");
 			
 			queryResult = orderItemsDao.getOrderDetailsBySearchKey(parameters);
 		}else {
-		
+			logger.info("search key is empty");
 			queryResult = orderItemsDao.getOrderDetailsByEmptySearchKey();
 		}
-		
+		logger.info("fetched order details from database");
 		try {
 			List<Object> objList = orderItemsDao.convertToObjectList(queryResult,new OrderDetailsVo(), null, null);
 			orderDetailsVos = mapper.readValue(gson.toJson(objList),new TypeReference<List<OrderDetailsVo>>() {});
@@ -448,6 +466,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 		
 		Map<BigInteger, SearchOrderVo> ordersMap = new HashMap<>();
 		
+		logger.info("creating order details map");
 		if (orderDetailsVos != null && !orderDetailsVos.isEmpty()) {
 
 			orderDetailsVos.forEach((vo -> {
@@ -484,7 +503,8 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 				
 					
 			}));
-		
+			
+			logger.info("order details map created successfully");
 			if(ordersMap != null && !ordersMap.isEmpty()) {
 				
 				ordersMap.keySet().forEach(vo -> {
@@ -495,6 +515,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			
 			if(searchOrderVos != null && !searchOrderVos.isEmpty()) {
 			
+				logger.info("fetched order details from order details map successfully");
 				Integer totalCount = searchOrderVos.size();
 				Integer indexstart = (pageNumber - 1) * pageSize;
 				Integer pages = totalCount / pageSize;
@@ -510,11 +531,13 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 					}
 				}
 			}
+			
 		}
 		
+		logger.info("Order details paginated successfully");
 		if(searchOrderDetailsPaginatedVos != null && !searchOrderDetailsPaginatedVos.isEmpty()) {
 			
-			logger.info("Order details fetched succssfully");
+			logger.info("Order details returned successfully");
 			responseMap.put("status", "success");
 			responseMap.put("message", "Order details fetched succssfully");
 			responseMap.put("totalOrdersCount", ordersMap.keySet().size());
