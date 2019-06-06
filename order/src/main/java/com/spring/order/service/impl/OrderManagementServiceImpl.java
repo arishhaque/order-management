@@ -469,36 +469,38 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 		logger.info("creating order details map");
 		if (orderDetailsVos != null && !orderDetailsVos.isEmpty()) {
 
-			orderDetailsVos.forEach((vo -> {
+			orderDetailsVos.forEach((orderDetaisVo -> {
 				
-				if(ordersMap.containsKey(vo.getOrderId())) {
+				if(ordersMap.containsKey(orderDetaisVo.getOrderId())) {
 					
-					SearchOrderVo searchOrderVo = ordersMap.get(vo.getOrderId());
+					// add new entry into map
+					SearchOrderVo searchOrderVo = ordersMap.get(orderDetaisVo.getOrderId());
 					SearchItemVo searchItemVo = new SearchItemVo();
-					searchItemVo.setItemId(vo.getItemId());
-					searchItemVo.setQuantity(vo.getQuantity());
-					searchItemVo.setOrderStatus(vo.getOrderStatus());
+					searchItemVo.setItemId(orderDetaisVo.getItemId());
+					searchItemVo.setQuantity(orderDetaisVo.getQuantity());
+					searchItemVo.setOrderStatus(orderDetaisVo.getOrderStatus());
 					searchOrderVo.getItemDetails().add(searchItemVo);
 					
-					ordersMap.put(vo.getOrderId(), searchOrderVo);
+					ordersMap.put(orderDetaisVo.getOrderId(), searchOrderVo);
 										
 				}else{
 					
+					// updating existing entry into map
 					SearchOrderVo searchOrderVo = new SearchOrderVo();
-					searchOrderVo.setOrderId(vo.getOrderId());
-					searchOrderVo.setEmailId(vo.getEmailId());
-					searchOrderVo.setDescription(vo.getDescription());
-					searchOrderVo.setPrice(vo.getPrice());
+					searchOrderVo.setOrderId(orderDetaisVo.getOrderId());
+					searchOrderVo.setEmailId(orderDetaisVo.getEmailId());
+					searchOrderVo.setDescription(orderDetaisVo.getDescription());
+					searchOrderVo.setPrice(orderDetaisVo.getPrice());
 					
 					SearchItemVo searchItemVo = new SearchItemVo();
-					searchItemVo.setItemId(vo.getItemId());
-					searchItemVo.setQuantity(vo.getQuantity());
-					searchItemVo.setOrderStatus(vo.getOrderStatus());
+					searchItemVo.setItemId(orderDetaisVo.getItemId());
+					searchItemVo.setQuantity(orderDetaisVo.getQuantity());
+					searchItemVo.setOrderStatus(orderDetaisVo.getOrderStatus());
 					
 					searchOrderVo.setItemDetails(new ArrayList<>());
 					searchOrderVo.getItemDetails().add(searchItemVo);
 					
-					ordersMap.put(vo.getOrderId(), searchOrderVo);
+					ordersMap.put(orderDetaisVo.getOrderId(), searchOrderVo);
 				}
 				
 					
