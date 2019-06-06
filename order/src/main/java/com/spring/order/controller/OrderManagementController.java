@@ -2,6 +2,7 @@ package com.spring.order.controller;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.order.service.OrderManagementService;
+import com.spring.order.vo.ItemStatusVo;
+import com.spring.order.vo.OrderItemStatusVo;
+import com.spring.order.vo.OrderStatusVo;
 import com.spring.order.vo.PlaceOrderVo;
 
 @RestController
@@ -31,6 +35,8 @@ public class OrderManagementController {
 				return responseMap;
 		}
 		
+		responseMap.put("status","error");
+		responseMap.put("message","cannot place Order, try again!");
 		return responseMap;
 	}
 	
@@ -41,9 +47,8 @@ public class OrderManagementController {
 		if(requestMap != null && !requestMap.isEmpty() && requestMap.containsKey("orderId")) {
 			Integer orderIdInt = (Integer) requestMap.get("orderId");
 			BigInteger orderId = BigInteger.valueOf(orderIdInt.intValue());
-			responseMap = orderManagementService.getOrderDetailsById(orderId);
-			if(responseMap != null && responseMap.get("status").equals("success"))
-				return responseMap;
+			responseMap = orderManagementService.getOrderDetailsById(orderId);	
+			return responseMap;
 		}
 		
 		responseMap.put("status","error");
@@ -51,29 +56,17 @@ public class OrderManagementController {
 		return responseMap;
 	}
 	
-	@RequestMapping(value="/update-order", method=RequestMethod.POST)
-	public @ResponseBody Map<String,Object> updateOrder(@RequestBody BigInteger orderId) {
+	@RequestMapping(value="/update-order-status", method=RequestMethod.POST)
+	public @ResponseBody Map<String,Object> updateOrder(@RequestBody OrderStatusVo orderStatusVo) {
 		
 		Map<String,Object> responseMap = new HashMap<>();
-		if(orderId!=null) {
-			responseMap = orderManagementService.updateOrder(orderId);
-			if(responseMap != null && responseMap.get("status").equals("success"))
-				return responseMap;		
-		}
-		
-		responseMap.put("message","Order is not valid");
-		responseMap.put("status","error");
-		return responseMap;
-	}
-
-	@RequestMapping(value="/cancel-order", method=RequestMethod.POST)
-	public @ResponseBody Map<String,Object> cancelOrder(@RequestBody BigInteger orderId) {
-		
-		Map<String,Object> responseMap = new HashMap<>();
-		if(orderId!=null) {
-			responseMap = orderManagementService.cancelOrder(orderId);
-			if(responseMap != null && responseMap.get("status").equals("success"))
-				return responseMap;		
+		if(orderStatusVo != null && orderStatusVo.getOrderId() != null 
+				&& orderStatusVo.getItemStatusVos() != null && !orderStatusVo.getItemStatusVos().isEmpty()) {
+			
+			BigInteger orderId = orderStatusVo.getOrderId();
+			List<ItemStatusVo> orderItemStatusVos =  orderStatusVo.getItemStatusVos();
+			responseMap = orderManagementService.updateOrderStatus(orderId, orderItemStatusVos);
+			return responseMap;		
 		}
 		
 		responseMap.put("message","Order is not valid");
@@ -82,13 +75,14 @@ public class OrderManagementController {
 	}
 
 	@RequestMapping(value="/check-order-status", method=RequestMethod.POST)
-	public @ResponseBody Map<String,Object> checkOrderStatus(@RequestBody BigInteger orderId) {
+	public @ResponseBody Map<String,Object> checkOrderStatus(@RequestBody OrderItemStatusVo orderItemStatusVo) {
 
 		Map<String,Object> responseMap = new HashMap<>();
-		if(orderId!=null){
-			responseMap = orderManagementService.checkOrderStatus(orderId);
-			if(responseMap != null && responseMap.get("status").equals("success"))
-				return responseMap;
+		if(orderItemStatusVo != null && orderItemStatusVo.getOrderId() != null 
+				&& orderItemStatusVo.getItemIds() != null && !orderItemStatusVo.getItemIds().isEmpty()) {
+			
+			responseMap = orderManagementService.checkOrderStatus(orderItemStatusVo);
+			return responseMap;
 		}
 		
 		responseMap.put("status","error");
@@ -100,7 +94,7 @@ public class OrderManagementController {
 	public @ResponseBody Map<String,Object> listAllOrders() {
 		
 		Map<String,Object> responseMap = new HashMap<>();
-		responseMap = orderManagementService.listAllOrders();
+		responseMap = orderManagementService.listAllOrderDetails();
 		return responseMap;
 	}
 
