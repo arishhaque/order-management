@@ -2,8 +2,9 @@ package com.spring.order.vo;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.List;
 
-public class OrderDetailsVo implements Serializable {
+public class SearchOrderVo implements Serializable {
 
 	/**
 	 * 
@@ -13,28 +14,21 @@ public class OrderDetailsVo implements Serializable {
 	private BigInteger orderId;
 	private String emailId;
 	private String description;
-	private BigInteger itemId;
-	private String orderStatus;
+	private List<SearchItemVo> itemDetails;
 	private BigInteger price;
-	private BigInteger quantity;
-		
-	public OrderDetailsVo() {
+	
+	public SearchOrderVo() {
 		super();
 	}
 
-	public OrderDetailsVo(BigInteger orderId, String emailId, String description, BigInteger itemId, String orderStatus,
-			BigInteger price, BigInteger quantity) {
+	public SearchOrderVo(BigInteger orderId, String emailId, String description, List<SearchItemVo> itemDetails, BigInteger price) {
 		super();
 		this.orderId = orderId;
 		this.emailId = emailId;
 		this.description = description;
-		this.itemId = itemId;
-		this.orderStatus = orderStatus;
+		this.itemDetails = itemDetails;
 		this.price = price;
-		this.quantity = quantity;
 	}
-
-
 
 	public BigInteger getOrderId() {
 		return orderId;
@@ -60,20 +54,13 @@ public class OrderDetailsVo implements Serializable {
 		this.description = description;
 	}
 
-	public BigInteger getItemId() {
-		return itemId;
+
+	public List<SearchItemVo> getItemDetails() {
+		return itemDetails;
 	}
 
-	public void setItemId(BigInteger itemId) {
-		this.itemId = itemId;
-	}
-
-	public String getOrderStatus() {
-		return orderStatus;
-	}
-
-	public void setOrderStatus(String orderStatus) {
-		this.orderStatus = orderStatus;
+	public void setItemDetails(List<SearchItemVo> itemDetails) {
+		this.itemDetails = itemDetails;
 	}
 
 	public BigInteger getPrice() {
@@ -83,13 +70,6 @@ public class OrderDetailsVo implements Serializable {
 	public void setPrice(BigInteger price) {
 		this.price = price;
 	}
-
-	public BigInteger getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(BigInteger quantity) {
-		this.quantity = quantity;
-	}
+	
 
 }

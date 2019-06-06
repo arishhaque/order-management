@@ -213,6 +213,7 @@ public class ItemServiceImpl implements ItemService {
 				
 				ItemVo itemVo = new ItemVo();
 				itemVo.setId(item.getId());
+				itemVo.setItemCount(item.getItemCount());
 				itemVo.setPrice(item.getPrice());
 				itemVo.setActive(item.getActive());
 				itemVo.setDescription(item.getDescription());

@@ -31,6 +31,8 @@ import com.spring.order.vo.OrderItemsVo;
 import com.spring.order.vo.OrderStatusVo;
 import com.spring.order.vo.PlaceOrderItemVo;
 import com.spring.order.vo.PlaceOrderVo;
+import com.spring.order.vo.SearchItemVo;
+import com.spring.order.vo.SearchOrderVo;
 
 @Service
 public class OrderManagementServiceImpl implements OrderManagementService {
@@ -409,8 +411,9 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 		
 		Map<String, Object> responseMap = new HashMap<>();
 		List<OrderDetailsVo> orderDetailsVos = new ArrayList<>();
-		List<OrderDetailsVo> orderDetailsPaginatedVos = new ArrayList<>();
-		Integer totalCount = null;
+		List<SearchOrderVo> searchOrderVos = new ArrayList<>();
+		List<SearchOrderVo> searchOrderDetailsPaginatedVos = new ArrayList<>();
+		
 		if(searchKey == null || pageSize == null || pageNumber == null) {
 			
 			logger.error("No orders matched");
@@ -443,39 +446,79 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 			e.printStackTrace();
 		}
 		
-		List<BigInteger> orderIdCount = new ArrayList<>();
-		//List<OrderDetailsVo> orderDetailsCountVos = new ArrayList<>();
-		if (orderDetailsVos != null && orderDetailsVos.size()>0) {
+		Map<BigInteger, SearchOrderVo> ordersMap = new HashMap<>();
+		
+		if (orderDetailsVos != null && !orderDetailsVos.isEmpty()) {
 
 			orderDetailsVos.forEach((vo -> {
-				if(!orderIdCount.contains(vo.getOrderId()))
-						orderIdCount.add(vo.getOrderId());
+				
+				if(ordersMap.containsKey(vo.getOrderId())) {
+					
+					SearchOrderVo searchOrderVo = ordersMap.get(vo.getOrderId());
+					SearchItemVo searchItemVo = new SearchItemVo();
+					searchItemVo.setItemId(vo.getItemId());
+					searchItemVo.setQuantity(vo.getQuantity());
+					searchItemVo.setOrderStatus(vo.getOrderStatus());
+					searchOrderVo.getItemDetails().add(searchItemVo);
+					
+					ordersMap.put(vo.getOrderId(), searchOrderVo);
+										
+				}else{
+					
+					SearchOrderVo searchOrderVo = new SearchOrderVo();
+					searchOrderVo.setOrderId(vo.getOrderId());
+					searchOrderVo.setEmailId(vo.getEmailId());
+					searchOrderVo.setDescription(vo.getDescription());
+					searchOrderVo.setPrice(vo.getPrice());
+					
+					SearchItemVo searchItemVo = new SearchItemVo();
+					searchItemVo.setItemId(vo.getItemId());
+					searchItemVo.setQuantity(vo.getQuantity());
+					searchItemVo.setOrderStatus(vo.getOrderStatus());
+					
+					searchOrderVo.setItemDetails(new ArrayList<>());
+					searchOrderVo.getItemDetails().add(searchItemVo);
+					
+					ordersMap.put(vo.getOrderId(), searchOrderVo);
+				}
+				
 					
 			}));
-			Integer indexstart = (pageNumber - 1) * pageSize;
-
-			totalCount = orderIdCount.size();
-			Integer pages = totalCount / pageSize;
-
-			if (pages + 1 >= pageNumber) {
-				if (pages + 1 == pageNumber)
-					pageSize = totalCount % pageSize;
-
-				for (int i = indexstart; i < indexstart + pageSize; i++) {
-
-					OrderDetailsVo orderDetailsVo = orderDetailsVos.get(i);
-					orderDetailsPaginatedVos.add(orderDetailsVo);
+		
+			if(ordersMap != null && !ordersMap.isEmpty()) {
+				
+				ordersMap.keySet().forEach(vo -> {
+					searchOrderVos.add(ordersMap.get(vo));
+				});
+				
+			}
+			
+			if(searchOrderVos != null && !searchOrderVos.isEmpty()) {
+			
+				Integer totalCount = searchOrderVos.size();
+				Integer indexstart = (pageNumber - 1) * pageSize;
+				Integer pages = totalCount / pageSize;
+	
+				if (pages + 1 >= pageNumber) {
+					if (pages + 1 == pageNumber)
+						pageSize = totalCount % pageSize;
+	
+					for (int i = indexstart; i < indexstart + pageSize; i++) {
+	
+						SearchOrderVo searchOrderVo = searchOrderVos.get(i);
+						searchOrderDetailsPaginatedVos.add(searchOrderVo);
+					}
 				}
 			}
 		}
 		
-		if(orderDetailsPaginatedVos != null && !orderDetailsPaginatedVos.isEmpty()) {
+		if(searchOrderDetailsPaginatedVos != null && !searchOrderDetailsPaginatedVos.isEmpty()) {
 			
 			logger.info("Order details fetched succssfully");
 			responseMap.put("status", "success");
 			responseMap.put("message", "Order details fetched succssfully");
-			responseMap.put("totalCount", totalCount);
-			responseMap.put("OrderDetails", orderDetailsPaginatedVos);
+			responseMap.put("totalOrdersCount", ordersMap.keySet().size());
+			responseMap.put("searchOrderDetails", searchOrderDetailsPaginatedVos);
 			return responseMap;
 		}
 		

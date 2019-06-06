@@ -83,6 +83,7 @@ public class OrderItemsDaoImpl extends GenericHibernateDaoImpl<OrderItems, BigIn
 		Session session = getSession();
 		String sqlQuery = "select distinct oi.order_id as orderId, \n"+
 				" o.email_id as emailId, \n"+
+				" o.description as description, \n" +
 				" i.id itemId, \n"+
 				" oi.order_status as orderStatus, \n"+
 				" oi.price as price, \n"+
@@ -113,6 +114,7 @@ public class OrderItemsDaoImpl extends GenericHibernateDaoImpl<OrderItems, BigIn
 		Session session = getSession();
 		String sqlQuery = "select distinct oi.order_id as orderId, \n"+
 				" o.email_id as emailId, \n"+
+				" o.description as description, \n" +
 				" i.id itemId, \n"+
 				" oi.order_status as orderStatus, \n"+
 				" oi.price as price, \n"+
@@ -120,7 +122,7 @@ public class OrderItemsDaoImpl extends GenericHibernateDaoImpl<OrderItems, BigIn
 				" from order_items oi \n"+
 				" left join item i on i.id=oi.item_id and i.active = true \n"+
 				" left join orders o on o.id=oi.order_id and o.active = true \n"+
-				" where oi.active=true and o.description like (:searchKey)";
+				" where oi.active=true and (o.description is not null and o.description like (:searchKey))";
 		
 		@SuppressWarnings("deprecation")
 		Query<Object[]> query = session.createSQLQuery(sqlQuery);
@@ -143,6 +145,7 @@ public class OrderItemsDaoImpl extends GenericHibernateDaoImpl<OrderItems, BigIn
 		Session session = getSession();
 		String sqlQuery = "select distinct oi.order_id as orderId, \n"+
 				" o.email_id as emailId, \n"+
+				" o.description as description, \n" +
 				" i.id itemId, \n"+
 				" oi.order_status as orderStatus, \n"+
 				" oi.price as price, \n"+
