@@ -102,3 +102,64 @@ i/p:
 	"pageSize":100,
 	"pageNumber":1
 }
+
+
+# add items
+7. http://localhost:8080/order/rest/api/items/create
+
+Method:POST
+i/p:
+{
+	"description":"11 item",
+	"itemCount":1,
+	"price":10,
+	"active":true
+}
+
+# add items in bulk
+8. http://localhost:8080/order/rest/api/items/create-batch
+
+Method:POST
+i/p:
+[
+	{
+	"description":"2nd item",
+	"itemCount":1,
+	"price":50,
+	"active":true
+	},
+	{
+	"description":"3rd item",
+	"itemCount":1,
+	"price":70,
+	"active":true
+	}
+]
+
+9. http://localhost:8080/order/rest/api/items/update-batch
+
+Method:POST
+i/p:
+{
+	"id":5,
+	"description":"1st item",
+	"itemCount":3,
+	"price":100,
+	"active":true
+}
+
+10. http://localhost:8080/order/rest/api/items/read
+
+Method:POST
+i/p:
+{
+	"id":1
+}
+
+11. http://localhost:8080/order/rest/api/items/list
+
+Method:POST
+i/p:
+{
+    
+}
