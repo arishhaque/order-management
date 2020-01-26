@@ -1,7 +1,7 @@
 # order management
-This project implements Rest apis for an order management system, using java and its frameworks - Spring, Hibernate and Mysql as database.
-Below are some of the functionalities, which could be used by e-commerce websites.
+This project implements Rest apis for an order management system leveraging java and j2ee frameworks - Spring, Hibernate, and Mysql for database managment.
+Below are some of the functionalities:
 
-1. Single & bulk ordering    
-2. CRUD operations on items
-3. Featured Apis for listing orders and items.  
+1. Single and bulk ordering    
+2. Featured Apis for listing orders and items.   
+3. CRUD operations on items
