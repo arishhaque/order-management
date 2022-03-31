@@ -13,7 +13,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <springframework.version>4.3.0.RELEASE</springframework.version>
-        <spring.version>5.0.7.RELEASE</spring.version>
+        <spring.version>5.3.18</spring.version>
         <org.springframework-version-release>5.0.4.RELEASE</org.springframework-version-release>
         <org.aspectj-version>1.8.12</org.aspectj-version>
         <org.aspectjweaver-version>1.8.12</org.aspectjweaver-version>
