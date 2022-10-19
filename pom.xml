@@ -22,7 +22,7 @@
 		<hibernate.validator>6.0.5.Final</hibernate.validator>
 		<c3p0.version>0.9.5.3</c3p0.version>
         <org.slf4j-version>1.7.5</org.slf4j-version>
-        <jackson.library>2.9.9</jackson.library>
+        <jackson.library>2.13.4.1</jackson.library>
   </properties>
 
   <dependencies>
